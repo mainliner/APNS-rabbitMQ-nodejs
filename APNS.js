@@ -1,5 +1,6 @@
 var apns = require("apn");
 var Subscriber = require("./models/Subscriber.js");
+var settings = require("./settings.js");
 var fs = require('fs');
 var pushLogfile = fs.createWriteStream('push.log',{flags:'a'});
 
@@ -9,13 +10,13 @@ var _log = function(msg) {
 
 var amqp = require('amqp');
 
-var connection = amqp.createConnection({ host: "localhost", port: 5672 });
+var connection = amqp.createConnection({ host: settings.rabbitmq, port: settings.rabbitmqPort });
 
 connection.on('ready',function(){
     console.log('connect to the APNS Queue');
-    connection.exchange('router', {type: 'direct',autoDelete: false,confirm: true}, function(exchange){
-        connection.queue('APNS',{exclusive: false} ,function(queue){
-            queue.bind('router','A');
+    connection.exchange(settings.exchange, {type: 'direct',autoDelete: false,confirm: true}, function(exchange){
+        connection.queue(settings.queue, {exclusive: false}, function(queue){
+            queue.bind(settings.exchange, settings.routingKey);
             queue.subscribe(function(msg){
                 var encoded_payload = unescape(msg.data);
                 var payload = JSON.parse(encoded_payload); //JSON dict
