@@ -24,10 +24,9 @@ connection.on('ready',function(){
                 var message = payload.message;
                 var badge = parseInt(payload.badge,10) || 0;
                 doPushMessage(starId, message, badge, function(err) {
-                    if (err) {  
-                        _log(err);
-                    } else {
-                        _log('pushed!');
+                    if (err) {
+                        var meta = '['+ new Date() +']' + starId + '\n';  
+                        pushLogfile.write(meta + err +'\n');
                     }
                 });
             });
@@ -36,7 +35,6 @@ connection.on('ready',function(){
 });
 
 var doPushMessage = function(starId, message, badge, callback){
-    _log("pushing starid's Subscriber: " + starId);
     getSubscribersbystarId(starId, function(err,devices){
         if(err){
             return callback(err);
@@ -48,6 +46,7 @@ var doPushMessage = function(starId, message, badge, callback){
             /* legacy: true */
             };
             var apnsConnection = new apns.Connection(connectionOptions);
+            /*
             apnsConnection.on("connected", function(openSockets) {
                           _log("connected to apns!");
                         });
@@ -59,13 +58,13 @@ var doPushMessage = function(starId, message, badge, callback){
             apnsConnection.on("transmitted", function(note, device) {
                           _log("sent note to device: " + device);
                         });
-
+            */
             apnsConnection.on("error", function(err) {
-                          _log("apns connection error: " + err);
+                          pushLogfile.write("apns connection error: " + err + '\n');
                         });
 
             apnsConnection.on("socketError", function(err) {
-                          _log("socket error: " + error);
+                          pushLogfile.write("socket error: " + error + '\n');
                         });
             for (var i in devices) {
                 var device = devices[i];
@@ -84,7 +83,7 @@ var doPushMessage = function(starId, message, badge, callback){
 
                 apnsConnection.pushNotification(note, apnsDevice);
 
-                _log("sending note to deviceToken: " + deviceToken);
+                pushLogfile.write("sending note to deviceToken: " + deviceToken + '\n');
             }
 
             apnsConnection.shutdown();
