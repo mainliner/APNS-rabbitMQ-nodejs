@@ -22,8 +22,10 @@ connection.on('ready',function(){
                 var payload = JSON.parse(encoded_payload); //JSON dict
                 var starId = payload.starId;
                 var message = payload.message;
+		var noticeType = payload.noticeType;
                 var badge = parseInt(payload.badge,10) || 0;
-                doPushMessage(starId, message, badge, function(err) {
+		console.log(payload);
+                doPushMessage(starId, message, noticeType, badge, function(err) {
                     if (err) {
                         var meta = '['+ new Date() +']' + starId + '\n';  
                         pushLogfile.write(meta + err +'\n');
@@ -34,7 +36,7 @@ connection.on('ready',function(){
     });
 });
 
-var doPushMessage = function(starId, message, badge, callback){
+var doPushMessage = function(starId, message, noticeType, badge, callback){
     getSubscribersbystarId(starId, function(err,devices){
         if(err){
             return callback(err);
@@ -66,11 +68,12 @@ var doPushMessage = function(starId, message, badge, callback){
             apnsConnection.on("socketError", function(err) {
                           pushLogfile.write("socket error: " + error + '\n');
                         });
+            var tokenHashTable = {};
             for (var i in devices) {
                 var device = devices[i];
                 var deviceToken = device.deviceToken;
 
-                if (!validateDeviceToken(deviceToken)) {
+                if (!validateDeviceToken(deviceToken,tokenHashTable)) {
                     continue;
                 }
 
@@ -79,7 +82,8 @@ var doPushMessage = function(starId, message, badge, callback){
                 var note = new apns.Notification();
                 note.badge = badge;
                 note.alert = message;
-                note.sound = "default";
+                note.sound = "ping.aiff";
+		        note.payload = {'type':noticeType};
 
                 apnsConnection.pushNotification(note, apnsDevice);
 
@@ -94,11 +98,16 @@ var doPushMessage = function(starId, message, badge, callback){
     });
 };
 
-var validateDeviceToken = function(token) {
+var validateDeviceToken = function(token,tokenHashTable) {
     if (token.length < 64) {
         return false;
     }
-    return true;
+    if(tokenHashTable[token] === undefined){
+        tokenHashTable[token] = 1;
+        return true;
+    }else{
+        return false;
+    }
 };
 
 var getSubscribersbystarId = function(starId, callback) {
