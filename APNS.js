@@ -10,7 +10,10 @@ var _log = function(msg) {
 
 var amqp = require('amqp');
 
-var connection = amqp.createConnection({ host: settings.rabbitmq, port: settings.rabbitmqPort });
+var connection = amqp.createConnection({ host: settings.rabbitmq,
+					 port: settings.rabbitmqPort,
+					 login: settings.rabbitmqUser,
+					 passsword: settings.rabbitmqPassword });
 
 connection.on('ready',function(){
     console.log('connect to the APNS Queue');
