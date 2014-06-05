@@ -1,5 +1,5 @@
 var apns = require("apn");
-var Subscriber = require("./models/Subscriber.js");
+var Subscriber = require("./models/subscriber.js");
 var settings = require("./settings.js");
 var fs = require('fs');
 var pushLogfile = fs.createWriteStream('push.log',{flags:'a'});
