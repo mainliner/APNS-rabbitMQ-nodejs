@@ -1,0 +1,15 @@
+{
+  "name": "application-name",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "mongodb": ">= 0.9.9",
+    "apn": "1.5.2",
+    "shortid": "1.0.6",
+    "generic-pool":"*",
+    "amqp":"*"
+  }
+}

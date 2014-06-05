@@ -22,9 +22,8 @@ connection.on('ready',function(){
                 var payload = JSON.parse(encoded_payload); //JSON dict
                 var starId = payload.starId;
                 var message = payload.message;
-		var noticeType = payload.noticeType;
+	        var noticeType = payload.noticeType;
                 var badge = parseInt(payload.badge,10) || 0;
-		console.log(payload);
                 doPushMessage(starId, message, noticeType, badge, function(err) {
                     if (err) {
                         var meta = '['+ new Date() +']' + starId + '\n';  
